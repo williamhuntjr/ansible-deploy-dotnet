@@ -1,0 +1,6 @@
+---
+- name: Install Microsoft .NET SDK and runtime
+  hosts: all
+  become: yes
+  roles:
+    - dotnet

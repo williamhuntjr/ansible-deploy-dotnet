@@ -1,0 +1,28 @@
+---
+# This playbook install dotnet SDK and runtime
+
+- name: Download Microsoft repo
+  get_url:
+    url: https://packages.microsoft.com/config/ubuntu/18.04/packages-microsoft-prod.deb
+    dest: /tmp/packages-microsoft-prod.deb
+- name: Install Microsoft repo
+  apt: deb=/tmp/packages-microsoft-prod.deb
+  become: true
+- name: Make sure HTTPS is enabled for apt
+  apt:
+    name: apt-transport-https
+    state: present
+    update_cache: no
+  become: true
+- name: Install .NET SDK
+  apt:
+    name: dotnet-sdk-6.0
+    state: present
+    update_cache: yes
+  become: true
+- name: Install .NET runtime
+  apt:
+    name: dotnet-runtime-6.0
+    state: present
+    update_cache: yes
+  become: true
