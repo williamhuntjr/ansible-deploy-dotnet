@@ -1,25 +1,44 @@
 ---
 # This playbook install dotnet SDK and runtime
 
-- name: Download Microsoft repo
+- name: Download Microsoft repo (Ubuntu 18)
   get_url:
     url: https://packages.microsoft.com/config/ubuntu/18.04/packages-microsoft-prod.deb
     dest: /tmp/packages-microsoft-prod.deb
+  when: ansible_distribution == "Ubuntu" and ansible_distribution_major_version == "18"
+- name: Download Microsoft repo (Ubuntu 20)
+  get_url:
+    url: https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb
+    dest: /tmp/packages-microsoft-prod.deb
+  when: ansible_distribution == "Ubuntu" and ansible_distribution_major_version == "20"
+- name: "Check if repo file exists"
+  stat:
+    path: "/tmp/packages-microsoft-prod.deb"
+  register: result
 - name: Install Microsoft repo
   apt: deb=/tmp/packages-microsoft-prod.deb
   become: true
+  when: (result.stat.isreg is defined) and (result.stat.isreg)
 - name: Make sure HTTPS is enabled for apt
   apt:
     name: apt-transport-https
     state: present
     update_cache: no
   become: true
-- name: Install .NET SDK
+- name: Install .NET SDK (Ubuntu 18 / 20)
   apt:
     name: dotnet-sdk-6.0
     state: present
     update_cache: yes
   become: true
+  when: ansible_distribution == "Ubuntu" and (ansible_distribution_major_version == "18" or ansible_distribution_major_version == "20")
+- name: Install .NET SDK (Ubuntu 22)
+  apt:
+    name: dotnet6
+    state: present
+    update_cache: yes
+  become: true
+  when: ansible_distribution == "Ubuntu" and ansible_distribution_major_version == "22"
 - name: Install .NET runtime
   apt:
     name: dotnet-runtime-6.0
